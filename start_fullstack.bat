@@ -6,6 +6,9 @@ REM 1. Start Python Backend (Primary)
 ECHO [1/4] Starting Python Primary Backend...
 start "Python Primary" cmd /k "cd pqc-enabaled-dual-device-payment-gateway\Primary\Backend && echo Activating Conda Environment... && call conda activate pqc_backend && python primary_backend.py"
 
+REM Add delay to avoid file locking issues with concurrent conda activations
+timeout /t 5 /nobreak >nul
+
 REM 2. Start Python Gateway
 ECHO [2/4] Starting Python Gateway...
 start "Python Gateway" cmd /k "cd pqc-enabaled-dual-device-payment-gateway\Primary\gateway && echo Activating Conda Environment... && call conda activate pqc_backend && python gateway.py"
