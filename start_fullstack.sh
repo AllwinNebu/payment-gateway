@@ -2,8 +2,8 @@
 
 # Configuration
 PROJECT_ROOT="$(pwd)"
-BANKING_DIR="payment-gateway/banking"
-PYTHON_DIR="payment-gateway/pqc-enabaled-dual-device-payment-gateway/Primary"
+BANKING_DIR="banking"
+PYTHON_DIR="pqc-enabaled-dual-device-payment-gateway/Primary"
 
 # Colors
 GREEN='\033[0;32m'
@@ -43,7 +43,7 @@ start_linux() {
 
 # 1. Start Node Backend
 echo -e "${BLUE}Launching Node Backend...${NC}"
-CMD_NODE="echo 'Checking npm dependencies...' && npm install && node server/index.js"
+CMD_NODE="node server/index.js"
 if [ "$OS" == "Darwin" ]; then
     start_tab_macos "Node Backend" "$CMD_NODE" "$BANKING_DIR"
 else
@@ -52,7 +52,7 @@ fi
 
 # 2. Start React Frontend
 echo -e "${BLUE}Launching React Frontend...${NC}"
-CMD_REACT="echo 'Checking npm dependencies...' && npm install && npm run dev"
+CMD_REACT="npm run dev"
 if [ "$OS" == "Darwin" ]; then
     start_tab_macos "React Frontend" "$CMD_REACT" "$BANKING_DIR"
 else

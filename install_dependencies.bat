@@ -36,15 +36,15 @@ REM simpler to use 'conda run' for installation if possible, or try activating.
 call conda activate pqc_backend
 IF %ERRORLEVEL% NEQ 0 (
     ECHO Failed to activate conda env. Trying to run pip via conda run...
-    call conda run -n pqc_backend pip install -r "payment-gateway\pqc-enabaled-dual-device-payment-gateway\Primary\requirements.txt"
+    call conda run -n pqc_backend pip install -r "pqc-enabaled-dual-device-payment-gateway\Primary\requirements.txt"
 ) ELSE (
-    call pip install -r "payment-gateway\pqc-enabaled-dual-device-payment-gateway\Primary\requirements.txt"
+    call pip install -r "pqc-enabaled-dual-device-payment-gateway\Primary\requirements.txt"
 )
 
 REM --- 2. Node Backend Setup ---
 ECHO.
 ECHO [2/3] Installing Node Backend Dependencies...
-cd "payment-gateway\banking"
+cd "banking"
 call npm install
 cd "..\.."
 

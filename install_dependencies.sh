@@ -2,8 +2,8 @@
 
 # Configuration
 PROJECT_ROOT="$(pwd)"
-PYTHON_SETUP_SCRIPT="payment-gateway/pqc-enabaled-dual-device-payment-gateway/Primary/setup_env.sh"
-BANKING_DIR="payment-gateway/banking"
+PYTHON_SETUP_SCRIPT="pqc-enabaled-dual-device-payment-gateway/Primary/setup_env.sh"
+BANKING_DIR="banking"
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
