@@ -49,3 +49,5 @@ Run the following in the terminal:
 ./start_fullstack.sh
 ```
 *This opens separate tabs/windows for each service.*
+
+open the localhost link
