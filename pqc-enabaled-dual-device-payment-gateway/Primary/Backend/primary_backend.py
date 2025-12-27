@@ -130,9 +130,10 @@ def receive_secondary_signature():
         # NEW: Update User State (Finalize Transaction)
         amount = float(pending_tx["data"].get("amount", 0))
         recipient = pending_tx["data"].get("recipient", "Large Transfer")
-        username = pending_tx["data"].get("username") # Should be in data now
+        username = pending_tx["data"].get("username") 
+        sender_id = pending_tx["data"].get("sender_id")
         
-        _update_state_after_transaction(amount, username, name=recipient)
+        _update_state_after_transaction(amount, username, sender_id, name=recipient)
         
         return jsonify({
             "status": "success",
@@ -200,6 +201,14 @@ def simulate_secondary_device():
 # MongoDB Logic
 # ---------------------------------------------------
 
+def get_user_by_id(user_id):
+    """Helper to get a specific user from DB by ID"""
+    if db is None or not user_id: return None
+    try:
+        return users_collection.find_one({"_id": ObjectId(user_id)})
+    except:
+        return None
+
 def get_user_by_name(username):
     """Helper to get a specific user from DB"""
     if db is None or not username: return None
@@ -208,8 +217,15 @@ def get_user_by_name(username):
 @app.route("/balance", methods=["GET"])
 def get_balance():
     """Returns current user balance from DB"""
+    user_id = request.args.get("user_id")
+    # Fallback to username for backward compatibility or simple testing
     username = request.args.get("username")
-    user = get_user_by_name(username)
+    
+    user = None
+    if user_id:
+        user = get_user_by_id(user_id)
+    elif username:
+        user = get_user_by_name(username)
     
     if user:
         return jsonify({"balance": user.get("balance", 0)})
@@ -218,13 +234,28 @@ def get_balance():
 @app.route("/transactions", methods=["GET"])
 def get_transactions():
     """Returns transaction history from DB"""
-    username = request.args.get("username")
+    username = request.args.get("username") # Legacy
+    user_id = request.args.get("user_id")
     
     if db is None: return jsonify({"transactions": []})
     
-    # Filter by user if username provided
+    # Filter by user (ID or Name)
     query = {}
-    if username:
+    if user_id:
+        # Match if sender_id OR recipient_id matches user_id
+        # Also include legacy matches where username matches (if we want to be thorough)
+        # But simpler: query for sender_id OR recipient_id
+        query["$or"] = [
+            {"sender_id": user_id},
+            {"recipient_id": user_id}
+        ]
+        
+        # Backward compatibility: If no results found or just to be safe, maybe also check username?
+        # Let's add username check to the OR clause if provided or if we can derive it.
+        if username:
+             query["$or"].append({"username": username})
+             
+    elif username:
         query["username"] = username
         
     # Sort by _id desc (timestamp proxy)
@@ -243,11 +274,16 @@ def get_transactions():
         
     return jsonify({"transactions": tx_list})
 
-def _update_state_after_transaction(amount, username, name="Transaction"):
+def _update_state_after_transaction(amount, username, sender_id, name="Transaction"):
     """Helper to update balance in DB and add history"""
-    user = get_user_by_name(username)
+    user = None
+    if sender_id:
+        user = get_user_by_id(sender_id)
+    if not user and username:
+        user = get_user_by_name(username)
+        
     if not user:
-        print(f"No user found to update: {username}")
+        print(f"No user found to update: {username} / {sender_id}")
         return
 
     # Update Balance
@@ -257,7 +293,8 @@ def _update_state_after_transaction(amount, username, name="Transaction"):
     
     # Add Transaction
     new_tx = {
-        "username": username, # Link transaction to user
+        "username": user.get("username"), # Keep for legacy/display
+        "sender_id": str(user["_id"]),   # NEW: Link by ID
         "name": name,
         "date": datetime.datetime.now().strftime("%b %d, %I:%M %p"),
         "amount": amount,
@@ -284,7 +321,8 @@ def sign_direct():
         # NEW: Update State
         amount = float(data.get("amount", 0))
         username = data.get("username")
-        _update_state_after_transaction(amount, username, name=data.get("recipient", "Quick Transfer"))
+        sender_id = data.get("sender_id")
+        _update_state_after_transaction(amount, username, sender_id, name=data.get("recipient", "Quick Transfer"))
 
         return jsonify({
             "status": "partial_success",

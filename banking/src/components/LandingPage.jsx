@@ -15,24 +15,24 @@ const LandingPage = ({ user, onLogout, onUpdateUser }) => {
     const [currentView, setCurrentView] = useState('dashboard');
 
     const fetchData = useCallback(async () => {
-        if (!user?.username) return;
+        if (!user?.id) return;
         try {
-            const balanceData = await api.getBalance(user.username);
+            const balanceData = await api.getBalance(user.id);
             setBalance(balanceData.balance);
 
-            const txData = await api.getTransactions(user.username);
+            const txData = await api.getTransactions(user.id);
             setTransactions(txData.transactions);
         } catch (error) {
             console.error("Failed to fetch data", error);
         }
-    }, [user?.username]);
+    }, [user?.id]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
     const handleSendMoney = async (amount, recipient) => {
-        const result = await api.sendMoney(amount, recipient, user?.username);
+        const result = await api.sendMoney(amount, recipient, user?.id);
         if (result && result.status === "pending_secondary_approval") {
             alert(`Transaction pending approval!\n\nPlease approve the transaction of $${amount} on your secondary device.\nTransaction ID: ${result.transaction_id}`);
         }
