@@ -14,12 +14,10 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '.env') });
 const app = express();
 const PORT = 3000;
-const mongourl = process.env.MONGO_URL;
 
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL, {
     serverSelectionTimeoutMS: 5000,
