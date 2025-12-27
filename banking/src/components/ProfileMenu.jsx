@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-const ProfileMenu = ({ username, onLogout }) => {
+const ProfileMenu = ({ username, onLogout, onNavigate }) => {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
     const initial = username ? username[0].toUpperCase() : 'U';
@@ -62,6 +62,10 @@ const ProfileMenu = ({ username, onLogout }) => {
                     </div>
 
                     <button
+                        onClick={() => {
+                            setIsOpen(false);
+                            if (onNavigate) onNavigate('settings');
+                        }}
                         style={{
                             width: '100%',
                             textAlign: 'left',

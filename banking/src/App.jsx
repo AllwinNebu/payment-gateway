@@ -7,7 +7,7 @@ function App() {
   const [user, setUser] = useState(null);
 
   return (
-    user ? <LandingPage user={user} onLogout={() => setUser(null)} /> : <LoginPage onLogin={(userData) => setUser(userData)} />
+    user ? <LandingPage user={user} onLogout={() => setUser(null)} onUpdateUser={setUser} /> : <LoginPage onLogin={(userData) => setUser(userData)} />
   );
 }
 

@@ -19,6 +19,7 @@ const LoginPage = ({ onLogin }) => {
             const data = await response.json();
 
             if (response.ok) {
+                localStorage.setItem('authToken', data.token);
                 onLogin(data.user);
             } else {
                 setError(data.message || 'Login failed');

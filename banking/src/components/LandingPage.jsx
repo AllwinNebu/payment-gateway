@@ -6,11 +6,13 @@ import TransactionHistory from './TransactionHistory';
 import ProfileMenu from './ProfileMenu';
 import TransactionModal from './TransactionModal';
 import { api } from '../services/api';
+import SettingsPage from './SettingsPage';
 
-const LandingPage = ({ user, onLogout }) => {
+const LandingPage = ({ user, onLogout, onUpdateUser }) => {
     const [balance, setBalance] = useState(user?.balance || 0);
     const [transactions, setTransactions] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentView, setCurrentView] = useState('dashboard');
 
     const fetchData = useCallback(async () => {
         if (!user?.username) return;
@@ -37,6 +39,16 @@ const LandingPage = ({ user, onLogout }) => {
         await fetchData(); // Refresh data after transaction
     };
 
+    if (currentView === 'settings') {
+        return (
+            <SettingsPage
+                user={user}
+                onBack={() => setCurrentView('dashboard')}
+                onUpdateUser={onUpdateUser}
+            />
+        );
+    }
+
     return (
         <div style={{
             maxWidth: '1400px',
@@ -58,7 +70,7 @@ const LandingPage = ({ user, onLogout }) => {
                     <Greeting username={user?.username} />
                     {/* Mobile/Tablet Profile Menu Position */}
                     <div style={{ display: 'none', '@media (max-width: 1024px)': { display: 'block' } }}>
-                        <ProfileMenu username={user?.username} onLogout={onLogout} />
+                        <ProfileMenu username={user?.username} onLogout={onLogout} onNavigate={setCurrentView} />
                     </div>
                 </div>
 
@@ -73,7 +85,7 @@ const LandingPage = ({ user, onLogout }) => {
             {/* Right Column */}
             <div style={{ height: 'calc(100vh - 4rem)', position: 'sticky', top: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div style={{ alignSelf: 'flex-end' }}>
-                    <ProfileMenu username={user?.username} onLogout={onLogout} />
+                    <ProfileMenu username={user?.username} onLogout={onLogout} onNavigate={setCurrentView} />
                 </div>
                 <TransactionHistory transactions={transactions} />
             </div>

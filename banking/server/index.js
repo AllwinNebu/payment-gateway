@@ -112,6 +112,47 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// Update User Endpoint
+app.put('/api/user/update', async (req, res) => {
+    console.log(req.body);
+    try {
+        const userId = req.body.id;
+        const { username, password } = req.body;
+
+        // Verify token (Simple check, ideally middleware)
+        const authHeader = req.headers['authorization'];
+        if (!authHeader) return res.status(401).json({ message: 'No token provided' });
+
+        // Find user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update fields (Explicitly ignoring balance)
+        if (username) user.username = username;
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            user.password = hashedPassword;
+        }
+
+        await user.save();
+
+        res.json({
+            message: 'User updated successfully',
+            user: {
+                id: user._id,
+                username: user.username,
+                balance: user.balance // Return current balance unchanged
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating user', error: error.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
